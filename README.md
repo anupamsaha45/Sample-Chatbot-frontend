@@ -1,4 +1,5 @@
-# ContractTerminator
+# Sample-Chatbot-Frontend
+This contains intial codes of frontend. Clone the code and customize the design according to your need.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.2.1.
 
