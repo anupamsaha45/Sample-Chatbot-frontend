@@ -7,7 +7,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 1. Clone this repository using Git.
 
-2. Open Terminal and cd into the project folder. For example if folder created is backend then, ```cd Sample-chatbot-Frontend```
+2. Open Terminal and cd into the project folder. For example if folder created is Sample-Chatbot-Frontend-master then, ```cd Sample-Chatbot-Frontend-master```
 
 3. Run ```npm install``` to install all the project dependencies.
 
