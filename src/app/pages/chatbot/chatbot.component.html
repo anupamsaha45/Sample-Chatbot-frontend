@@ -1,0 +1,231 @@
+<div class="container-fluid full-height theme-bg" style="overflow: hidden; background-image: url(./assets/css/trilyo_header.png);">
+    <div class="row">
+        <div class="col-sm-12 col-md-6 offset-md-3 full-height center box-spacing" style="z-index: 1; padding: 3.4rem">
+            <div class="chatbox-body">
+                <div class="chat-body" id="chat-body">
+                    <div [class.overlay]=menuFlag></div>
+                    <div class="chat-messages" id="scroll" #scrollMe>
+                        <!-- loader starts -->
+                        <div *ngIf="loader" style="margin-top:50%">
+                            <h6 class="text-center mt-5"><i>Easy cancellation on its way</i></h6>
+                            <div class="spinner-grow text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-secondary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-success" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-danger" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-warning" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <!-- loader ends -->
+                        <!-- Loads present convo Starts -->
+                        <div *ngFor="let message of messages; let i = index">
+                            <!-- Bot messages starts -->
+                            <div class="answer left" *ngIf="message.from == 'bot'">
+                                <div class="avatar" *ngIf="(message.message.text) && !message.message.quick_replies">
+                                    <img src="assets/images/contract-terminator.e87158e0.png" alt="Bot" style="width:28px">
+                                    <div class="status online" *ngIf=online></div>
+                                    <div class="status offline" *ngIf=!online></div>
+                                </div>
+                                <div>
+                                    <!-- Text Reply -->
+                                    <div class="text m-t-1" *ngIf="message.message.text && !message.message.title">
+                                        <div class="avatar" style="margin-left:-45px; margin-bottom:-4px;" *ngIf="message.message.quick_replies">
+                                            <img src="assets/images/contract-terminator.e87158e0.png" alt="Bot" style="width:28px">
+                                            <div class="status online" *ngIf=online></div>
+                                            <div class="status offline" *ngIf=!online></div>
+                                        </div>
+                                        {{message.message.text}}
+                                    </div>
+
+                                    <!-- Quick Reply Format-->
+                                    <div class="chat full-width-fluid no-background no-shadow card-layout" *ngIf="message.message.quick_replies && message.message.quick_replies.length!=0">
+                                        <div class="quick-reply-holder">
+                                            <div class="q-r">
+                                                <div>
+                                                    <span class="pointer" *ngFor="let quick_reply of message.message.quick_replies">
+                                                        <button  *ngIf="!quick_reply._id || messages.length-1==i" (click)="quickReply(quick_reply, message)">{{quick_reply.title}}</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- AutoFill Format-->
+                                    <div *ngIf="message.message.plugin == 'autofill' && messages.length-1 == i">
+                                        <br>
+                                        <input class="col-12 col-sm-12 col-md-12 search-bar" [placeholder]="message.message.config.placeholder" [(ngModel)]=companyName (keyup)=filterCompany() (keyup.enter)=fillCompanyBox(companyName) autofocus>
+                                        <div class="search-result" *ngIf="filterCompanies.length > 0">
+                                            <ul>
+                                                <span *ngFor="let company of filterCompanies">
+                                                    <li (click)="fillCompanyBox(company.name)" style="cursor:pointer;">{{company.name}}</li>
+                                                </span>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Format-->  
+                                    <div *ngIf="message.message.attachment?.payload.template_type=='button'">   
+                                        <div class="text m-t-1" *ngIf="message.message.attachment.type">
+                                            <div class="avatar" style="margin-left:-45px; margin-bottom:-4px;" >
+                                                <img src="assets/images/contract-terminator.e87158e0.png" alt="Bot" style="width:28px">
+                                                <div class="status online" *ngIf=online></div>
+                                                <div class="status offline" *ngIf=!online></div>
+                                            </div>
+                                            {{message.message.attachment.payload.text}}
+                                        </div>
+                                    </div>
+
+                                    <div class="chat full-width-fluid no-background no-shadow card-layout" *ngIf="message.message.attachment?.payload.template_type=='button'">
+                                        <div class="quick-reply-holder" *ngIf="message.message.attachment.type">                                          
+                                            <div class="q-r" *ngFor="let button of message.message.attachment.payload.buttons">
+                                                <a *ngIf="(button.type=='web_url')" href="{{button.url}}" target="_blank"><button type="button" class="border-square">{{button.title}}</button></a>
+                                                <button *ngIf="(button.type=='postback')" class="border-square" (click)="buttonMenu(message.message.attachment.payload.text, button, message)">{{button.title}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                    
+                                    <!-- Form Data -->
+                                    <div class="text m-t-1" *ngIf="message.message.plugin=='form'">
+                                        <div class="avatar" style="margin-left:-45px; margin-bottom:-4px;" >
+                                            <img src="assets/images/contract-terminator.e87158e0.png" alt="Bot" style="width:28px">
+                                            <div class="status online" *ngIf=online></div>
+                                            <div class="status offline" *ngIf=!online></div>
+                                        </div>
+                                        <div>
+                                            <ul style="padding-left: 13px;margin-bottom:20px;margin-top:20px">
+                                                <li *ngFor="let form of message.message.config.forms">{{form.parameter}}: <em>{{form.text}}</em></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dropdown Format-->
+                                    <div class="chat full-width-fluid no-background no-shadow card-layout" *ngIf="message.message.plugin=='dropdown' && messages.length-1 == i">
+                                        <button class="search-bar dropdown" (click)="dropdownFlag = !dropdownFlag">--- Select Product --- <i class="fa fa-chevron-down"></i></button>
+                                        <div class="search-result" *ngIf=dropdownFlag>
+                                            <ul>
+                                                <span *ngFor="let product of message.message.config.dropdown">
+                                                    <li (click)="dropdown(product, message); dropdownFlag=false" style="cursor:pointer;">{{product.productName}}</li>
+                                                </span>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Date Format -->
+                                    <div *ngIf="message.message.plugin == 'datepicker' && messages.length-1 == i">
+                                            <br>                                                                  
+                                            <form #myform="ngForm" *ngIf="message.message.config.date_format[0].disableUntil">
+                                                <my-date-picker name="myDate" placeholder="select a Date and Enter" [options]="myDatePickerOptions" [(ngModel)]="userDate" (dateChanged)="onDateChange($event);sendMessage()"></my-date-picker>
+                                            </form>
+
+                                           <form #myform="ngForm" *ngIf="message.message.config.date_format[0].disableSince">
+                                                <my-date-picker name="myDate" placeholder="select a Date and Enter" [options]="myDatePickerOption" [(ngModel)]="userDate" (dateChanged)="onDateChange($event);sendMessage()"></my-date-picker>
+                                            </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- Bot messages ends -->
+
+
+
+<!-- ****************************************************************************************-->
+
+
+                            <!-- User Messages Starts -->
+                            <div class="answer right m-t-1" *ngIf="message.from == 'user'">
+                                <div class="avatar">
+                                    <img src="assets/images/user.png" alt="User">
+                                    <div class="status online"></div>
+                                </div>
+                                <div class="text" *ngIf="message.message.text">
+                                    {{message.message.text}}
+                                </div>
+
+                                <div *ngIf="message.message.quick_replies">
+                                    <div class="text" *ngIf="message.message.quick_replies && (message.message.quick_replies).length>0">
+                                        {{message.message.quick_replies[0].title}}
+                                    </div>
+                                </div>
+
+
+
+                                <div class="text" *ngIf="message.message.dropdown">
+                                    {{message.message.dropdown.productName}}
+                                </div>
+                                <div class="text" *ngIf="message.message.plugin == 'text'">
+                                    {{message.message.config.text}}
+                                </div>
+                                <div class="text" *ngIf="message.message.plugin=='quick_reply'">
+                                    <span *ngFor="let quick_reply of message.message.config.quick_replies">{{quick_reply.text}}
+                                    </span>
+                                </div>
+                                <!-- <div class="text" *ngIf="message.message.postback">
+                                    {{message.message.postback.text}}
+                                </div> -->
+
+
+                                <div *ngIf="message.message.attachment">
+                                    <div *ngIf="message.message.attachment.type">
+                                        <div class="text" *ngIf="message.message.attachment.payload.template_type=='button'">
+                                            {{message.message.attachment.payload.buttons[0].title}}
+                                        </div>
+                                        <div class="text" *ngIf="message.message.attachment.payload.template_type=='generic'">
+                                            {{message.message.attachment.payload.buttons[0].title}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- User messages ends -->
+                        </div>
+                   
+                       
+                    </div>
+                    <!-- Chatbox footer -->
+                    <div class="answer-add">
+                        <!-- Persistent menu icon -->
+                        <div class="col-1 col-sm-1 menu-btn col-md-1" style="padding: 14px;">
+                            <i class="fa fa-bars clickable" style="position:static; top:0" (click)=openOutsideSidenav()></i>
+                        </div>
+                        <!-- Start Persistent Menu -->
+                        <div id="trilyo_persitent_menu" ng-show="showMenu" class="ui-menu ui-widget ui-widget-content" role="menu" tabindex="0" aria-activedescendant="ui-id-1" *ngIf=menuFlag (clickOutside)="closeOutsideSidenav()" [exclude]="'.menu-btn,.arrow-right,.arrow-left'">
+                            <hr>
+                            <!-- Menu1 -->
+                            <div class="quick-option-content center" *ngIf="quickOptionContentIndex == 1">
+                                <i class="fa fa-arrow-left arrow-left btn-disabled"></i>
+                                <button (click)="menuBtn1('Restart', 'restart'); closeOutsideSidenav()" class="persistent-button"><img src="../../../assets/images/refresh.svg" width="15" class="mr-1">Restart</button>
+                                <button (click)="menuBtn1('My Saved Data', 'my_saved_data'); closeOutsideSidenav()" class="persistent-button"><img src="../../../assets/images/file.svg" width="15" class="mr-1">My Saved Data</button>
+                                <i class="fa fa-arrow-right arrow-right" (click)="nextMenu()"></i>
+                            </div>
+                            <!-- Menu2 -->
+                            <div class="quick-option-content center" *ngIf="quickOptionContentIndex == 2">
+                                <i class="fa fa-arrow-left arrow-left" (click)="prevMenu()"></i>
+                                <a href="https://www.opzeggen.nl/" target="_blank"><button class="persistent-button"><img src="../../../assets/images/web.svg" width="15" class="mr-1">Website</button></a>
+                                <button (click)="menuBtn1('English', 'en'); closeOutsideSidenav()" class="persistent-button"><img src="../../../assets/images/EN.svg" width="15" class="mr-1">En</button>
+                                <button (click)="menuBtn1('Dutch', 'nl'); closeOutsideSidenav()" class="persistent-button"><img src="../../../assets/images/NL.svg" width="15" class="mr-1">NL</button>
+                                <i class="fa fa-arrow-right arrow-right btn-disabled"></i>
+                            </div>
+                        </div>
+                        <!-- End Persistent Menu -->
+                        <input class="col-9 col-sm-9 col-md-9 p-l-14" placeholder={{inputPlaceholder}} [(ngModel)]=messageText (keyup.enter)=sendMessage() style="padding-left: 14px" [disabled]=messageInput>
+                        <i class="fa fa-paper-plane clickable" (click)=sendMessage()></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="halfBg"></div>
